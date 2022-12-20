@@ -1,59 +1,14 @@
 #include "array.h"
 
-static void clear_list(Array *arr)
+Array *new_array(uint32_t length, ArrayT type, size_t type_size)
 {
-    if (arr->type != SCHAR)   arr->list.schar = NULL;
-    if (arr->type != SINT)    arr->list.sint = NULL;
-    if (arr->type != UCHAR)   arr->list.uchar = NULL;
-    if (arr->type != UINT)    arr->list.uint = NULL;
-    if (arr->type != FLOAT)   arr->list.float_ = NULL;
-    if (arr->type != BOOL)    arr->list.bool_ = NULL;
-    if (arr->type != POINTER) arr->list.pointer = NULL;
-}
 
-static void init_list(Array *arr)
-{
-    size_t size = arr->length;
-
-    switch (arr->type) {
-        case SCHAR:
-            arr->list.schar = malloc(size * sizeof(char *));
-            break;
-        case SINT:
-            arr->list.sint = malloc(size * sizeof(int *));
-            break;
-        case UCHAR:
-            arr->list.uchar = malloc(size * sizeof(unschar *));
-            break;
-        case UINT:
-            arr->list.uint = malloc(size * sizeof(unsint *));
-            break;
-        case FLOAT:
-            arr->list.float_ = malloc(size * sizeof(float *));
-            break;
-        case BOOL:
-            arr->list.bool_ = malloc(size * sizeof(bool *));
-            break;
-        case POINTER:
-            arr->list.pointer = malloc(size * sizeof(void *));
-            break;
-        case OTHER:
-        default:
-            arr->list.other = malloc(size * sizeof(void *));
-            break;
-    }
-
-    clear_list(arr);
-}
-
-Array *new_array(const size_t length, const ArrayT type)
-{
     Array *array = malloc(sizeof(Array));
 
     array->length = length;
     array->type = type;
 
-    init_list(array);
+    array->list = malloc(type_size * length);
 
     if (type == OTHER)
         array->printing_func = NULL;
@@ -63,6 +18,12 @@ Array *new_array(const size_t length, const ArrayT type)
     return array;
 }
 
+void set_typeID(Array *arr, const char *type_name)
+{
+    arr->str_type = malloc(strlen(type_name) + 1); // count the \0
+    strcpy(arr->str_type, type_name);
+}
+
 void set_printing(Array *arr, Printer printing_func)
 {
     arr->printing_func = printing_func;
@@ -70,73 +31,54 @@ void set_printing(Array *arr, Printer printing_func)
 
 void common_printing(Array *arr)
 {
-    char *formats[] = { FORMATS };
-
     fputs("[", stdout);
-    switch (arr->type) {
-        case SCHAR:
-            for (int i = 0; i < arr->length; i++)
-                fprintf(stdout, formats[arr->type], arr->list.schar[i]);
+    for (int i = 0; i < arr->length; i++)
+    {
+        switch (arr->type)
+        {
+        case CHAR:
+            if (((char *)arr->list)[i] == '\0') break;
+            printf("'%c'", ((char *)arr->list)[i]);
             break;
-        case SINT:
-            for (int i = 0; i < arr->length; i++)
-                fprintf(stdout, formats[arr->type], arr->list.sint[i]);
-            break;
-        case UCHAR:
-            for (int i = 0; i < arr->length; i++)
-                fprintf(stdout, formats[arr->type], arr->list.uchar[i]);
-            break;
-        case UINT:
-            for (int i = 0; i < arr->length; i++)
-                fprintf(stdout, formats[arr->type], arr->list.uint[i]);
+        case INT:
+            printf("%d", ((int *)arr->list)[i]);
             break;
         case FLOAT:
-            for (int i = 0; i < arr->length; i++)
-                fprintf(stdout, formats[arr->type], arr->list.float_[i]);
+            printf("%f", ((float *)arr->list)[i]);
             break;
         case BOOL:
-            for (int i = 0; i < arr->length; i++)
-                fprintf(stdout, formats[arr->type], arr->list.bool_[i]);
+        {
+            bool *list = ((bool *)arr->list);
+            if (list[i]) printf("true");
+            else         printf("false");
             break;
-        case POINTER:
-            for (int i = 0; i < arr->length; i++)
-                fprintf(stdout, formats[arr->type], arr->list.pointer[i]);
+        }
+        case STRING:
+            printf("\"%s\"", ((char **)arr->list)[i]);
             break;
         case OTHER:
         default:
-            arr->printing_func(arr);
+            if (arr->str_type) printf("<Array[%d]:: %s>", arr->length, arr->str_type);
+            else printf("<Array[%d]>", arr->length);
             break;
-    }
-    printf(GO(2, LEFT) DELETE_FROM_TO_END); // delete last colon ", "
-    fflush(stdout); // dont know if it's necessary
-    fputs("]", stdout);
-}
+        }
 
-void *get_list(Array *arr)
-{
-    switch (arr->type) {
-        case SCHAR:
-            return arr->list.schar;
-        case SINT:
-            return arr->list.sint;
-        case UCHAR:
-            return arr->list.uchar;
-        case UINT:
-            return arr->list.uint;
-        case FLOAT:
-            return arr->list.float_;
-        case BOOL:
-            return arr->list.bool_;
-        case POINTER:
-            return arr->list.pointer;
-        case OTHER:
-        default:
-            return arr->list.other;
+        // characters have different cases because of the \0
+        if (arr->type == CHAR && ((char *)arr->list)[i + 1] == '\0')
+            break;
+        // if it is the last index put a colon
+        else if (i + 1 < arr->length) printf(", ");
     }
+    fputs("]", stdout);
 }
 
 void print_list(Array *arr)
 {
     if (arr->printing_func != NULL)
         arr->printing_func(arr);
+    else
+    {
+        if (arr->str_type) printf("<Array[%d]:: %s>", arr->length, arr->str_type);
+        else printf("<Array[%d]>", arr->length);    
+    }
 }

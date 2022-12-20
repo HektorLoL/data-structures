@@ -3,76 +3,43 @@
 
 #include "structs.h"
 
-#define foreach(var, length) for (int var = 0; var < length; var++)
+// a useful header for making a loop, so you don't waste time
+#ifndef foreach
+#  define foreach(var, length) for (int var = 0; var < length; var++)
+#endif
 
-// the formats are in order of ArrayT
-#define STR_BOOL_TRUE  "true"
-#define STR_BOOL_FALSE "false"
-
-#define WITH_PERCENTAGE(format) "%" format ", "
-#define FORMATS              \
-    WITH_PERCENTAGE("c"),    \
-    WITH_PERCENTAGE("d"),    \
-    WITH_PERCENTAGE("c"),    \
-    WITH_PERCENTAGE("u"),    \
-    WITH_PERCENTAGE("f"),    \
-    WITH_PERCENTAGE("s"),    \
-    WITH_PERCENTAGE("p")
-//  No OTHER type
-
+// possible types (made for making the printing easier)
 typedef enum ArrayT
 {
-    SCHAR,  SINT,
-    UCHAR,  UINT,
-
-    FLOAT,
-
-    BOOL,
-
-    POINTER, OTHER,
+    CHAR, INT,   // signed numbers
+    FLOAT,          // floating point numbers
+    BOOL,           // booleans (true/else)
+    STRING, OTHER, // pointer types
 } ArrayT;
 
-typedef unsigned char unschar;
-typedef unsigned int unsint;
-
-typedef struct List
-{
-    signed   char      *schar;
-    // signed   short     *sshort;
-    signed   int       *sint;
-    // signed   long      *slong;
-    // signed   long long *slonglong;
-    
-    unsigned char      *uchar;
-    // unsigned short     *ushort;
-    unsigned int       *uint;
-    // unsigned long      *ulong;
-    // unsigned long long *ulonglong;
-    
-    float              *float_;
-    // double             *double_; 
-    // long double        *longdouble;
-    
-    bool               *bool_;
-    
-    void               **pointer;
-    void               **other;
-} List;
-
+// the array type
 typedef struct Array
 {
-    size_t length;
+    uint32_t length;
+    void *list;
+    
     ArrayT type;
-    List list;
+    char *str_type;
+
     void (*printing_func)(struct Array *arr);
 } Array;
 
+// the definition of a function to print arrays, so you
+// dont miss anything when passing your own
 typedef void (*Printer)(Array *arr);
 
+// you shouldn't use this function directly
 void common_printing(Array *arr);
+
 void set_printing(Array *arr, Printer printing_func);
-void *get_list(Array *arr);
+void set_typeID(Array *arr, const char *type_name);
 void print_list(Array *arr);
-Array *new_array(const size_t length, const ArrayT type);
+
+Array *new_array(uint32_t length, ArrayT type, size_t type_size);
 
 #endif // ARRAY_H
