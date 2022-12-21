@@ -24,6 +24,7 @@ void set_typeID(Array *arr, const char *type_name)
     strcpy(arr->str_type, type_name);
 }
 
+// as this function is so short, it could be declared as inline
 void set_printing(Array *arr, Printer printing_func)
 {
     arr->printing_func = printing_func;

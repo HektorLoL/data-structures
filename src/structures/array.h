@@ -29,6 +29,20 @@ typedef struct Array
     void (*printing_func)(struct Array *arr);
 } Array;
 
+// Array type could also be defined like this: (which would be better)
+// typedef struct _Array Array;
+// typedef void (*Printer)(Array *arr);
+// struct _Array
+// {
+//     uint32_t length;
+//     void *list;
+    
+//     ArrayT type;
+//     char *str_type;
+
+//     Printer printing_func;
+// };
+
 // the definition of a function to print arrays, so you
 // dont miss anything when passing your own
 typedef void (*Printer)(Array *arr);
