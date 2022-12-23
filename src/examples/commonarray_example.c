@@ -1,4 +1,4 @@
-#include "../structures/array.h"
+#include "../structures/commonarray.h"
 #include "examples.h"
 
 typedef struct somestruct // this is a static structure

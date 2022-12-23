@@ -1,4 +1,4 @@
-#include "array.h"
+#include "commonarray.h"
 
 Array *new_array(uint32_t length, ArrayT type, size_t type_size)
 {
