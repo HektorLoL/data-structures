@@ -1,28 +1,14 @@
-#include "examples/examples.h"
-#include "structures/commonarray.h"
-#include <stddef.h>
-#include <stdio.h>
-#include <unistd.h>
-
-#define MAX 5000000000
+#include "./structures/array.h"
 
 int main()
 {
-    //! Uncomment what you want to see.
-    char *pointer = malloc(sizeof(char) * MAX);
-    if (pointer == NULL)
-    {
-        perror("malloc returned NULL");
-        return -1;
-    }
+    Array *arr = new_array(5, sizeof(int), false);
+    int x = 500;
 
-    for (size_t i = 0; i < MAX; i++)
-        pointer[i] = i % 200;
-    
-    printf("Press\x1B[31m ANY\x1B[0m key to continue.");
-    getchar();
+    insert_values(arr, 0, (int[]){30, 60, 90, 120, 150}, arr->length);
+    insert_value(arr, 2, &x);
 
-    free(pointer);
-    
+    print_typed_arr(arr, "%d", int);
+
     return 0;
 }

@@ -28,7 +28,6 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 #   you could also put these flags in the make command,
 #   like: `sudo make CFLAGS='-Wall -g'`
 CFLAGS := -Wall -g
-# comment the line above to not debug
 
 # The final build step.
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
