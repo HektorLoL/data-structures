@@ -51,5 +51,7 @@ struct _Array
 _Noreturn void array_error(int code, char *callback_name);
 void insert_values(Array *arr, uint32_t index, const void *values, uint32_t length);
 Array *new_array(uint16_t length, size_t item_size, bool isTerminated);
+Array *copy_array(Array *arr);
+void *free_array(Array *arr, bool only_structre);
 
 #endif // ARRAY_H

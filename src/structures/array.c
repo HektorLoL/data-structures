@@ -75,3 +75,29 @@ void insert_values(Array *arr, uint32_t index, const void *values, uint32_t leng
 			arr->item_size
 		);
 }
+
+Array *copy_array(Array *arr)
+{
+	uint32_t length = arr->length;
+	size_t item_size = arr->item_size;
+	char *data = get_usable_data(arr, 0);
+
+	Array *copy = new_array(length, item_size, arr->isTerminated);
+
+	foreach(i, length)
+	{
+		insert_values(copy, 0, data, length);
+	}
+
+	return copy;
+}
+
+void *free_array(Array *arr, bool only_structre)
+{
+	if (only_structre)
+	{
+		void *data = arr->data;
+		free(arr);
+		return data;
+	}
+}
