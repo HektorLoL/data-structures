@@ -3,20 +3,20 @@
 int main()
 {
     Array *arr = new_array(5, sizeof(int), false);
-    int x = 500;
-    int y = -9;
 
-    insert_values(arr, 0, (int[]){30, 60, 90, 120, 150}, arr->length);
-    
-    Array *copy = copy_array(arr);
-    
-    insert_value(arr, 2, &x);
-    insert_value(copy, 1, &y);
+    set_values(arr, 0, (int[]){30, 60, 90, 120, 150}, arr->length);
 
-
+    printf("Default Array: ");
     print_typed_arr(arr, "%d", int);
     printf("\n");
-    print_typed_arr(copy, "%d", int);
+    
+    insert_values(arr, 1, (int[]){50, 100, 150}, 3);
+
+    printf("Inserted     : ");
+    print_typed_arr(arr, "%d", int);
+    printf("\n");
+    
+    __print_array_specs__();
 
     return 0;
 }
