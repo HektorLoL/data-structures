@@ -8,12 +8,8 @@ static inline char *get_usable_data(Array *arr, uint16_t index)
 	return ((char *)arr->data) + (index * arr->item_size);
 }
 
-_Noreturn void __array_error(int code, char *callback_name)
+_Noreturn void __array_error__(int code, char *callback_name)
 {
-	#ifdef PLEASE_NO_ERROS
-	return;
-	#endif
-
 	printf(COLOR_YELLOW "{Code %d} ", code);
 
 	if (callback_name == NULL)
@@ -36,6 +32,13 @@ _Noreturn void __array_error(int code, char *callback_name)
 	exit(EXIT_FAILURE);
 }
 
+void __array_error(int code, char *callback_name)
+{
+	#ifndef PLEASE_NO_ERRORS
+	__array_error__(code, callback_name);
+	#endif
+}
+
 void __print_array_specs__()
 {
 	printf("\n"
@@ -47,11 +50,6 @@ void __print_array_specs__()
 		"\tDelete: " COLOR_CYAN "O(n)" COLOR_NONE ",\n"
 		"};\n"
 	);
-}
-
-inline void set_clearer(Array *arr, Clearer clear_func)
-{
-	arr->clear_func = clear_func;
 }
 
 void reset_array(Array *arr)
@@ -110,7 +108,7 @@ void set_values(Array *arr, uint32_t index, const void *values, uint32_t length)
 
 	for (int i = 0; i < length; i++)
 	{
-		#ifdef PLEASE_NO_ERROS
+		#ifdef PLEASE_NO_ERRORS
 		if (i + index >= arr->length) break;
 		#endif
 
@@ -122,7 +120,6 @@ void set_values(Array *arr, uint32_t index, const void *values, uint32_t length)
 	}
 }
 
-// TODO (has bugs)
 void insert_values(Array *arr, uint32_t index, const void *values, uint32_t length)
 {
 	if (index+1 > arr->length)
@@ -138,35 +135,39 @@ void insert_values(Array *arr, uint32_t index, const void *values, uint32_t leng
 	char *usable_data = get_usable_data(arr, 0);
 	char *usable_values = (char *)values;
 
-	int starting_point = arr->length - length;
+	// should have changed the variables names
+	// from point to position 😅
 
-	if (starting_point <= index) // [best situation] O(1) -> no need to move the other items
+	int moving_point = arr->length - length;
+
+	if (moving_point <= index) // [best situation] O(1) -> no need to move the other items
 	{
+		int constrained_point = math_min(math_max(0, length), arr->length - index);
+
 		memcpy(
 			(void *)(usable_data + arr->item_size * index),
 			(void *)(usable_values + arr->item_size * 0),
-			arr->length - index
+			(constrained_point) * arr->item_size
 		);
 	}
 	else // [worst situation] O(n) -> needs to move the other items
 	{
-		for (int i = starting_point; i > index; i--)
+		int starting_point = index + length - 1;
+
+		for (int i = starting_point; i >= index; i--)
 		{
 			void *destination_el = __get_data_index__(usable_data, arr, i + length);
 			void *current_el = __get_data_index__(usable_data, arr, i);
 
-			// copies the position to other location
-			memcpy(destination_el, current_el, arr->item_size);
-
-			// inserts one element
-			if (i < index + length)
-			{
-				void *inserted_value = __get_data_index__(usable_values, arr, i - index);
-				memcpy(current_el, inserted_value, arr->item_size);
-			}
+			// copies the position to other location (if available)
+			if (i + length < arr->length)
+				memcpy(destination_el, current_el, arr->item_size);
+			
+			// insert the acctual value
+			void *insert_value = __get_data_index__(usable_values, arr, i - index);
+			memcpy(current_el, insert_value, arr->item_size);
 		}
 	}
-
 }
 
 Array *copy_array(Array *arr)

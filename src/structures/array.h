@@ -8,7 +8,7 @@
 #include <string.h>
 #include "terminal_macros.h"
 
-// #define PLEASE_NO_ERRORS // when defined no errors will be printed
+#define PLEASE_NO_ERRORS // when defined no errors will be printed
 
 #ifndef foreach
 #  define foreach(var, length) for (int var = 0; var < length; var++) 
@@ -43,7 +43,12 @@
 
 #define get_element(array, type, index) ((type *)array->data)[index]
 
-#define __get_data_index__(data, arr, index) (data + arr->item_size * index)
+#define __get_data_index__(data, arr, index) (data + arr->item_size * (index))
+
+#ifndef MY_MATH
+#define math_min(a, b) (a > b ? b : a)
+#define math_max(a, b) (a > b ? a : b)
+#endif
 
 typedef struct _Array Array;
 typedef void (*Clearer)(Array *arr);
@@ -58,15 +63,16 @@ struct _Array
 	Clearer clear_func;
 };
 
-#ifdef PLEASE_NO_ERRORS
-_Noreturn void __array_error(int code, char *callback_name);
-#else
+inline void set_clearer(Array *arr, Clearer clear_func)
+{
+	arr->clear_func = clear_func;
+}
+
+_Noreturn void __array_error__(int code, char *callback_name);
 void __array_error(int code, char *callback_name);
-#endif
 
 void __print_array_specs__();
 
-inline void set_clearer(Array *arr, Clearer clear_func);
 void set_values(Array *arr, uint32_t index, const void *values, uint32_t length);
 void insert_values(Array *arr, uint32_t index, const void *values, uint32_t length);
 Array *new_array(uint16_t length, size_t item_size, bool isTerminated);

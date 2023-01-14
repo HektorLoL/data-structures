@@ -10,11 +10,11 @@ int main()
     print_typed_arr(arr, "%d", int);
     printf("\n");
     
-    insert_values(arr, 1, (int[]){50, 100, 150}, 3);
+    insert_values(arr, 1, (int[]){2, 3, 4, 5, 6}, 5);
 
     printf("Inserted     : ");
     print_typed_arr(arr, "%d", int);
-    printf("\n");
+    printf("\n\n");
     
     __print_array_specs__();
 
