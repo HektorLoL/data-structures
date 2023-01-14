@@ -1,12 +1,4 @@
 #include "array.h"
-#include <string.h>
-
-static inline char *get_usable_data(Array *arr, uint16_t index)
-{
-	// characters have only one byte, because of that, using the
-	// item size we can jump the right amout of bytes to get the value
-	return ((char *)arr->data) + (index * arr->item_size);
-}
 
 _Noreturn void __array_error__(int code, char *callback_name)
 {
@@ -24,6 +16,8 @@ _Noreturn void __array_error__(int code, char *callback_name)
 			printf("The desired index is larger than the array length itself.\n");
 		case 2:
 			printf("The inserted content is larger than the array length itself.\n");
+		case 3:
+			printf("The array does not have a specified value comparison function.\n");
 	}
 
 	printf(COLOR_NONE);
@@ -34,12 +28,11 @@ _Noreturn void __array_error__(int code, char *callback_name)
 
 void __array_error(int code, char *callback_name)
 {
-	#ifndef PLEASE_NO_ERRORS
-	__array_error__(code, callback_name);
-	#endif
+	if (PLEASE_NO_ERRORS)
+		__array_error__(code, callback_name);
 }
 
-void __print_array_specs__()
+void __print_array_specs()
 {
 	printf("\n"
 		"Array speed: {\n"
@@ -63,13 +56,14 @@ void reset_array(Array *arr)
 	else arr->clear_func(arr);
 }
 
-Array *new_array(uint16_t length, size_t item_size, bool isTerminated)
+Array *new_array(uint32_t length, size_t item_size, bool isTerminated)
 {
 	Array *arr = malloc(sizeof(Array));
 
 	arr->length = length;
 	arr->item_size = item_size;
 	arr->clear_func = NULL;
+	arr->compare_func = NULL;
 	arr->data = malloc(length * item_size);
 
 	// cast array list into a character array so we can accually use it
@@ -108,9 +102,8 @@ void set_values(Array *arr, uint32_t index, const void *values, uint32_t length)
 
 	for (int i = 0; i < length; i++)
 	{
-		#ifdef PLEASE_NO_ERRORS
-		if (i + index >= arr->length) break;
-		#endif
+		if (PLEASE_NO_ERRORS)
+			if (i + index >= arr->length) break;
 
 		memcpy(
 			(void *)(usable_data + arr->item_size * (i + index)),
@@ -156,15 +149,15 @@ void insert_values(Array *arr, uint32_t index, const void *values, uint32_t leng
 
 		for (int i = starting_point; i >= index; i--)
 		{
-			void *destination_el = __get_data_index__(usable_data, arr, i + length);
-			void *current_el = __get_data_index__(usable_data, arr, i);
+			void *destination_el = __get_data_index(usable_data, arr, i + length);
+			void *current_el = __get_data_index(usable_data, arr, i);
 
 			// copies the position to other location (if available)
 			if (i + length < arr->length)
 				memcpy(destination_el, current_el, arr->item_size);
 			
 			// insert the acctual value
-			void *insert_value = __get_data_index__(usable_values, arr, i - index);
+			void *insert_value = __get_data_index(usable_values, arr, i - index);
 			memcpy(current_el, insert_value, arr->item_size);
 		}
 	}
@@ -196,4 +189,30 @@ void *free_array(Array *arr, bool only_structre)
 
 	free(data);
 	return NULL;
+}
+
+bool int_compare(Array *arr, uint32_t index, const void *search_item)
+{
+	char *data = get_usable_data(arr, 0);
+
+	int *index_val = (int *)__get_data_index(data, arr, index);
+	int *search_value = (int *)search_item;
+
+	return (*index_val) == (*search_value);
+}
+
+// O(n)
+int linear_search_value(Array *arr, const void *value)
+{
+	if (arr->compare_func == NULL)
+	{
+		__array_error(3, "linear_search_value");
+	}
+
+	foreach(i, arr->length)
+	{
+		if (arr->compare_func(arr, i, value)) return i;
+	}
+
+	return -1;
 }
