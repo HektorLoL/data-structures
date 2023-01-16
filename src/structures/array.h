@@ -9,7 +9,6 @@
    utilities functioon
 	
    ** TODO:
-   // binary_search_array  O(log n) [faster but needs to be sorted]
    // remove_values
    // sort_array
    
@@ -44,6 +43,7 @@
 #ifndef MY_MATH
 #define math_min(a, b) (a > b ? b : a)
 #define math_max(a, b) (a > b ? a : b)
+#define math_ceil(x) ((x) - ((int)x) <= 0 ? ((int)x) : ((int)x) + 1)
 #endif
 
 
@@ -93,8 +93,6 @@
 
 
 
-
-
 const extern int PLEASE_NO_ERRORS;
 
 
@@ -126,6 +124,7 @@ struct _Array
 // BUT IT WORKS AND IS AVALIABLE TO OTHER FILES WHICH IS WHAT I WANTED.
 // WIHOUT THE STATIC THE FUNCTION FOR SOME REASON CANNOT BE ACCESSED
 // IN THE SOURCE FILE (array.c) IDK WHY. (AND ACCUALLY ANY OTHER FILE)
+//
 // this function is not recommended as it is just used inside
 // this array specs functions. It is complicated an there is
 // a much easier and simpler alternative: the "get_element" macro.
@@ -148,7 +147,15 @@ static inline void set_comparator(Array *arr, Comparator compare_func)
 	arr->compare_func = compare_func;
 }
 
-
+static inline int ceil_(float x)
+{
+    int y = (int)x;
+    
+    if ( (float)x - (float)y <= 0)
+        return y;
+    else
+        return y + 1;    
+}
 
 
 

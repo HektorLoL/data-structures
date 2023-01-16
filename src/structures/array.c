@@ -38,7 +38,7 @@ void __print_array_specs()
 		"Array speed: {\n"
 		"\tAccess: " COLOR_CYAN "O(1)" COLOR_NONE ",\n"
 		"\tSet   : " COLOR_CYAN "O(1)" COLOR_NONE ",\n"
-		"\tSearch: " COLOR_CYAN "O(log n)" COLOR_GREEN " > " COLOR_CYAN "O(n)" COLOR_NONE ",\n"
+		"\tSearch: " COLOR_CYAN "O(n)" COLOR_NONE ",\n"
 		"\tInsert: " COLOR_CYAN "O(n)" COLOR_NONE ",\n"
 		"\tDelete: " COLOR_CYAN "O(n)" COLOR_NONE ",\n"
 		"};\n"
